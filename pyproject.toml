@@ -5,7 +5,6 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "assembly-game"
 version = "0.3.2"
-license = {file = "LICENSE.txt"}
 authors = [
   { name="Adam Korba", email="korba.adam@gmail.com" },
   { name="Konstanty Kordas" }
@@ -15,7 +14,9 @@ readme = "README.md"
 requires-python = ">=3.11"
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
 dependencies = ["gymnasium>=1.1.1"]
+
+[tool.setuptools.packages.find]
+include = ["assembly_game", "assembly_game.*"]
