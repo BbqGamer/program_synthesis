@@ -14,18 +14,20 @@ class Operand(Enum):
     RAX = 2
 
 
+NUM_REGISTERS = 4
+PROCESSOR_ACTIONS = [
+    (inst, op1, op2)
+    for inst in [Instruction.MOV, Instruction.CMP, Instruction.CMOVG]
+    for op1 in Operand
+    for op2 in Operand
+] + [(Instruction.RET,)]
+
+
 class Processor:
     rdi: int
     rsi: int
     rax: int
     cmp_res: int
-
-    actions = [
-        (inst, op1, op2)
-        for inst in [Instruction.MOV, Instruction.CMP, Instruction.CMOVG]
-        for op1 in Operand
-        for op2 in Operand
-    ] + [(Instruction.RET,)]
 
     def __init__(self, rdi: int = 0, rsi: int = 0) -> None:
         self.rdi = rdi
@@ -53,11 +55,16 @@ class Processor:
         else:
             raise ValueError("Invalid register")
 
-    def n_actions(self) -> int:
-        return len(self.actions)
+    @staticmethod
+    def get_num_actions() -> int:
+        return len(PROCESSOR_ACTIONS)
+
+    @staticmethod
+    def get_state_size() -> int:
+        return NUM_REGISTERS
 
     def evaluate_action(self, action_id: int) -> bool:
-        action = self.actions[action_id]
+        action = PROCESSOR_ACTIONS[action_id]
         if len(action) == 1:
             if action[0] != Instruction.RET:
                 raise ValueError("Unsupported instruction")
@@ -79,4 +86,6 @@ class Processor:
         return False
 
     def get_state(self) -> tuple[int, int, int, int]:
-        return (self.rdi, self.rsi, self.rax, self.cmp_res)
+        state = (self.rdi, self.rsi, self.rax, self.cmp_res)
+        assert len(state) == NUM_REGISTERS
+        return state
