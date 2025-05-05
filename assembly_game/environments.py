@@ -53,7 +53,7 @@ class Min2Game(gymnasium.Env):
         total_env_size = len(self.processors)
         if correct_items == total_env_size:
             reward += all_correct_reward
-        
+            
         log = {f"example_{i}": str(proc) for i, proc in enumerate(self.processors)}
 
         return np.array(state), reward, halted, False, log
