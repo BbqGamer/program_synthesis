@@ -89,3 +89,8 @@ class Processor:
         state = (self.rdi, self.rsi, self.rax, self.cmp_res)
         assert len(state) == NUM_REGISTERS
         return state
+
+    def __str__(self):
+        return (
+            f"rdi={self.rdi} rsi={self.rsi} rax={self.rax} cmp_res={self.cmp_res}"
+        )

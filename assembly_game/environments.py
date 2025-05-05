@@ -27,7 +27,7 @@ class Min2Game(gymnasium.Env):
         # rax is the result of the comparison
         self.processors = [Processor(rdi=MIN, rsi=MAX), Processor(rdi=MAX, rsi=MIN)]
         self.t = 0
-
+        self.previous_correct_items = 0
         state = []
         for proc in self.processors:
             state.extend(proc.get_state())
@@ -37,15 +37,23 @@ class Min2Game(gymnasium.Env):
     def step(self, action: Any) -> tuple[Any, float, bool, bool, dict[str, Any]]:
         for proc in self.processors:
             halted = proc.evaluate_action(action)
-
         self.t += 1
-        num_correct = 0
         state = []
+        correct_items = 0
         for proc in self.processors:
             state.extend(proc.get_state())
-            if proc.rax == 1:
-                num_correct += 1
+            if proc.rax == MIN:
+                correct_items += 1
+        correctness_reward_weight = 1
+        reward = correctness_reward_weight * (
+            correct_items - self.previous_correct_items
+        )
+        self.previous_correct_items = correct_items
+        all_correct_reward = 10
+        total_env_size = len(self.processors)
+        if correct_items == total_env_size:
+            reward += all_correct_reward
+        
+        log = {f"example_{i}": str(proc) for i, proc in enumerate(self.processors)}
 
-        reward = 10 * num_correct - self.t
-
-        return np.array(state), reward, halted, False, {}
+        return np.array(state), reward, halted, False, log
