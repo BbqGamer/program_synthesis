@@ -11,10 +11,12 @@ class Instruction(Enum):
 class Operand(Enum):
     RDI = 0
     RSI = 1
-    RAX = 2
+    RDX = 2
+    RCX = 3
+    RAX = 4
 
 
-NUM_REGISTERS = 4
+STATE_LEN = 6
 PROCESSOR_ACTIONS = [
     (inst, op1, op2)
     for inst in [Instruction.MOV, Instruction.CMP, Instruction.CMOVG]
@@ -24,14 +26,19 @@ PROCESSOR_ACTIONS = [
 
 
 class Processor:
-    rdi: int
-    rsi: int
+    # http://6.s081.scripts.mit.edu/sp18/x86-64-architecture-guide.html
+    rdi: int  # first argument
+    rsi: int  # second argument
+    rdx: int  # third argument
+    rcx: int  # fourth argument
     rax: int
     cmp_res: int
 
-    def __init__(self, rdi: int = 0, rsi: int = 0) -> None:
+    def __init__(self, rdi: int = 0, rsi: int = 0, rdx: int = 0, rcx: int = 0) -> None:
         self.rdi = rdi
         self.rsi = rsi
+        self.rdx = rdx
+        self.rcx = rcx
         self.rax = 0
         self.cmp_res = 0
 
@@ -40,6 +47,10 @@ class Processor:
             self.rdi = value
         elif reg == Operand.RSI:
             self.rsi = value
+        elif reg == Operand.RDX:
+            self.rdx = value
+        elif reg == Operand.RCX:
+            self.rcx = value
         elif reg == Operand.RAX:
             self.rax = value
         else:
@@ -50,6 +61,10 @@ class Processor:
             return self.rdi
         elif reg == Operand.RSI:
             return self.rsi
+        elif reg == Operand.RDX:
+            return self.rdx
+        elif reg == Operand.RCX:
+            return self.rcx
         elif reg == Operand.RAX:
             return self.rax
         else:
@@ -61,7 +76,7 @@ class Processor:
 
     @staticmethod
     def get_state_size() -> int:
-        return NUM_REGISTERS
+        return STATE_LEN
 
     def evaluate_action(self, action_id: int) -> bool:
         action = PROCESSOR_ACTIONS[action_id]
@@ -85,12 +100,10 @@ class Processor:
             raise ValueError("Invalid number of operands")
         return False
 
-    def get_state(self) -> tuple[int, int, int, int]:
-        state = (self.rdi, self.rsi, self.rax, self.cmp_res)
-        assert len(state) == NUM_REGISTERS
+    def get_state(self) -> tuple[int, int, int, int, int, int]:
+        state = (self.rdi, self.rsi, self.rax, self.rdx, self.rcx, self.cmp_res)
+        assert len(state) == STATE_LEN
         return state
 
     def __str__(self):
-        return (
-            f"rdi={self.rdi} rsi={self.rsi} rax={self.rax} cmp_res={self.cmp_res}"
-        )
+        return f"rdi={self.rdi} rsi={self.rsi} rax={self.rax} rdx={self.rdx} rcx={self.rcx} cmp_res={self.cmp_res}"

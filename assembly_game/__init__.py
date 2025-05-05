@@ -6,3 +6,10 @@ register(
     disable_env_checker=True,
     order_enforce=False,
 )
+
+register(
+    id="Min3Game",
+    entry_point="assembly_game.environments:Min3Game",
+    disable_env_checker=True,
+    order_enforce=False,
+)
