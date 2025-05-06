@@ -12,7 +12,7 @@ class Min2Game(gymnasium.Env):
     MAX = 2
     action_space = gymnasium.spaces.Discrete(Processor.get_num_actions())
     observation_space = gymnasium.spaces.Box(
-        low=MIN - MAX,
+        low=0,
         high=MAX,
         shape=(Processor.get_state_size() * 2,),
         dtype=np.int8,
@@ -28,7 +28,6 @@ class Min2Game(gymnasium.Env):
             Processor(rdi=self.MIN, rsi=self.MAX),
             Processor(rdi=self.MAX, rsi=self.MIN),
         ]
-        self.t = 0
         self.previous_correct_items = 0
         state = []
         for proc in self.processors:
@@ -39,7 +38,6 @@ class Min2Game(gymnasium.Env):
     def step(self, action: Any) -> tuple[Any, float, bool, bool, dict[str, Any]]:
         for proc in self.processors:
             halted = proc.evaluate_action(action)
-        self.t += 1
         state = []
         correct_items = 0
         for proc in self.processors:
@@ -67,7 +65,7 @@ class Min3Game(gymnasium.Env):
     MAX = 3
     action_space = gymnasium.spaces.Discrete(Processor.get_num_actions())
     observation_space = gymnasium.spaces.Box(
-        low=MIN - MAX,
+        low=0,
         high=MAX,
         shape=(Processor.get_state_size() * 6,),
         dtype=np.int8,
@@ -87,7 +85,6 @@ class Min3Game(gymnasium.Env):
             Processor(rdi=self.MAX, rsi=self.MIN, rdx=self.MID),
             Processor(rdi=self.MAX, rsi=self.MID, rdx=self.MIN),
         ]
-        self.t = 0
         self.previous_correct_items = 0
         state = []
         for proc in self.processors:
@@ -98,7 +95,6 @@ class Min3Game(gymnasium.Env):
     def step(self, action: Any) -> tuple[Any, float, bool, bool, dict[str, Any]]:
         for proc in self.processors:
             halted = proc.evaluate_action(action)
-        self.t += 1
         state = []
         correct_items = 0
         for proc in self.processors:
@@ -128,7 +124,7 @@ class Min4Game(gymnasium.Env):
     permutations = list(itertools.permutations([MIN, MID1, MID2, MAX]))
     action_space = gymnasium.spaces.Discrete(Processor.get_num_actions())
     observation_space = gymnasium.spaces.Box(
-        low=MIN - MAX,
+        low=0,
         high=MAX,
         shape=(Processor.get_state_size() * len(permutations),),
         dtype=np.int8,
@@ -143,7 +139,6 @@ class Min4Game(gymnasium.Env):
         self.processors = [
             Processor(rdi=a, rsi=b, rdx=c, rcx=d) for a, b, c, d in self.permutations
         ]
-        self.t = 0
         self.previous_correct_items = 0
         state = []
         for proc in self.processors:
@@ -154,7 +149,6 @@ class Min4Game(gymnasium.Env):
     def step(self, action: Any) -> tuple[Any, float, bool, bool, dict[str, Any]]:
         for proc in self.processors:
             halted = proc.evaluate_action(action)
-        self.t += 1
         state = []
         correct_items = 0
         for proc in self.processors:

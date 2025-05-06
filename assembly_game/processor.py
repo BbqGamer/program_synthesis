@@ -90,9 +90,9 @@ class Processor:
             if inst == Instruction.MOV:
                 self._set_reg(op2, self._get_reg(op1))
             elif inst == Instruction.CMP:
-                self.cmp_res = self._get_reg(op2) - self._get_reg(op1)
+                self.cmp_res = bool(self._get_reg(op2) > self._get_reg(op1))
             elif inst == Instruction.CMOVG:
-                if self.cmp_res > 0:
+                if self.cmp_res:
                     self._set_reg(op2, self._get_reg(op1))
             else:
                 raise ValueError("Invalid instruction")
