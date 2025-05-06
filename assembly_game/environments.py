@@ -35,6 +35,7 @@ class MinGame(gymnasium.Env):
         self.processors = [Processor(*perm) for perm in self.permutations]
         self.previous_correct_items = 0
         self.all_correct = False
+        self.t = 0
         state = []
         for proc in self.processors:
             state.extend(proc.get_state())
@@ -42,6 +43,7 @@ class MinGame(gymnasium.Env):
         return np.array(state), {}
 
     def step(self, action: Any) -> tuple[Any, float, bool, bool, dict[str, Any]]:
+        self.t+=1
         for proc in self.processors:
             halted = proc.evaluate_action(action)
         state = []
@@ -50,16 +52,18 @@ class MinGame(gymnasium.Env):
             state.extend(proc.get_state())
             if proc.rax == self.MIN:
                 correct_items += 1
-        correctness_reward_weight = 1
+        correctness_reward_weight = 5
         reward = correctness_reward_weight * (
             correct_items - self.previous_correct_items
         )
         self.previous_correct_items = correct_items
-        all_correct_reward = 10
+        all_correct_reward = 100
         total_env_size = len(self.processors)
         if correct_items == total_env_size:
-            reward += all_correct_reward
+            reward += all_correct_reward-self.t
             self.all_correct = True
+            halted = True
+
         log = {f"example_{i}": str(proc) for i, proc in enumerate(self.processors)}
         log["is_success"] = self.all_correct
         return np.array(state), reward, halted, False, log
