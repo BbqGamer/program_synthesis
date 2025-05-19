@@ -5,7 +5,6 @@ class Instruction(Enum):
     MOV = 0
     CMP = 1
     CMOVG = 2
-    RET = 3
 
 
 class Operand(Enum):
@@ -18,11 +17,8 @@ class Operand(Enum):
 
 STATE_LEN = 6
 PROCESSOR_ACTIONS = [
-    (inst, op1, op2)
-    for inst in [Instruction.MOV, Instruction.CMP, Instruction.CMOVG]
-    for op1 in Operand
-    for op2 in Operand
-] + [(Instruction.RET,)]
+    (inst, op1, op2) for inst in Instruction for op1 in Operand for op2 in Operand
+]
 
 
 class Processor:
@@ -80,24 +76,18 @@ class Processor:
 
     def evaluate_action(self, action_id: int) -> bool:
         action = PROCESSOR_ACTIONS[action_id]
-        if len(action) == 1:
-            if action[0] != Instruction.RET:
-                raise ValueError("Unsupported instruction")
-            # doesn't matter what is in op1 and op2, RET just exits
-            return True
-        elif len(action) == 3:
-            inst, op1, op2 = action
-            if inst == Instruction.MOV:
+        if len(action) != 3:
+            raise ValueError("Invalid action")
+        inst, op1, op2 = action
+        if inst == Instruction.MOV:
+            self._set_reg(op2, self._get_reg(op1))
+        elif inst == Instruction.CMP:
+            self.cmp_res = bool(self._get_reg(op2) > self._get_reg(op1))
+        elif inst == Instruction.CMOVG:
+            if self.cmp_res:
                 self._set_reg(op2, self._get_reg(op1))
-            elif inst == Instruction.CMP:
-                self.cmp_res = bool(self._get_reg(op2) > self._get_reg(op1))
-            elif inst == Instruction.CMOVG:
-                if self.cmp_res:
-                    self._set_reg(op2, self._get_reg(op1))
-            else:
-                raise ValueError("Invalid instruction")
         else:
-            raise ValueError("Invalid number of operands")
+            raise ValueError("Invalid instruction")
         return False
 
     def get_state(self) -> tuple[int, int, int, int, int, int]:
