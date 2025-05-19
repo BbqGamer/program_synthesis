@@ -43,7 +43,7 @@ class MinGame(gymnasium.Env):
         return np.array(state), {}
 
     def step(self, action: Any) -> tuple[Any, float, bool, bool, dict[str, Any]]:
-        self.t+=1
+        self.t += 1
         for proc in self.processors:
             halted = proc.evaluate_action(action)
         state = []
@@ -60,7 +60,7 @@ class MinGame(gymnasium.Env):
         all_correct_reward = 100
         total_env_size = len(self.processors)
         if correct_items == total_env_size:
-            reward += all_correct_reward-self.t
+            reward += all_correct_reward - self.t
             self.all_correct = True
             halted = True
 
