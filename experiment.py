@@ -2,7 +2,6 @@ import argparse
 
 import gymnasium as gym
 import stable_baselines3 as st3
-from stable_baselines3.common.monitor import Monitor
 
 import wandb
 from assembly_game.processor import PROCESSOR_ACTIONS
@@ -48,7 +47,7 @@ if __name__ == "__main__":
         help="Timesteps taken by our model",
     )
     args = parser.parse_args()
-    print(args)
+
     if not (args.model or args.environment or args.n):
         parser.error("No action requested, add -e ENVIRONMENT, -n N and -m MODEL")
     if args.learning_rate > 1 or args.learning_rate < 0:
@@ -64,6 +63,7 @@ if __name__ == "__main__":
             "learning_rate": args.learning_rate,
             "batch_size": args.batch_size,
         },
+        sync_tensorboard=True,
     )
     environments = {
         "min_game": "MinGame",
@@ -76,7 +76,7 @@ if __name__ == "__main__":
         max_episode_steps=args.steps,
         size=args.n,
     )
-    env = Monitor(env)
+    env
     rl_model = models[args.model](
         policy="MlpPolicy",
         env=env,
@@ -84,15 +84,19 @@ if __name__ == "__main__":
         device="cpu",
         learning_rate=args.learning_rate,
         batch_size=args.batch_size,
+        tensorboard_log="./ppo_tensorboard/"
     )
-    print("we got here")
-    print(type(rl_model))
 
-    rl_model.learn(total_timesteps=args.timesteps, callback=WandbCallback(
-        gradient_save_freq=1000,
-        model_save_path=f"models/{run.id}",
-        verbose=2,
-    ))
+    rl_model.learn(
+        total_timesteps=args.timesteps,
+        callback=WandbCallback(
+            gradient_save_freq=100,
+            model_save_freq=1000,
+            model_save_path=f"models/{run.id}",
+            verbose=2,
+            log='all',
+        ),
+    )
     wandb.finish()
     state, _ = env.reset()
     cumreward = 0
