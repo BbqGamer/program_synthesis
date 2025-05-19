@@ -21,6 +21,16 @@ PROCESSOR_ACTIONS = [
 ]
 
 
+def actions_to_asm(actions: list[int]) -> str:
+    result = ""
+    for i in range(len(actions)):
+        action = actions[i]
+        inst, op1, op2 = PROCESSOR_ACTIONS[action]
+        result += f"{inst.name.lower()}\t%{op1.name.lower()}, %{op2.name.lower()}\n"
+    result += "ret\n"
+    return result
+
+
 class Processor:
     # http://6.s081.scripts.mit.edu/sp18/x86-64-architecture-guide.html
     rdi: int  # first argument
