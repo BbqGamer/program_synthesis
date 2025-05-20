@@ -117,6 +117,10 @@ class SortGame(gymnasium.Env):
             for i in range(self.size):
                 if sequence[i] == self.values[i]:
                     correct_items += 1 / self.size
+                # remove floating point errors
+                if abs(1 - correct_items) < 1e-5:
+                    correct_items = 1
+
         correctness_reward_weight = 5
         reward = correctness_reward_weight * (
             correct_items - self.previous_correct_items

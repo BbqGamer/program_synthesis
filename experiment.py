@@ -120,6 +120,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "--ent-coef", type=float, default=0.01, help="Entropy coefficient (for PPO)"
     )
+    parser.add_argument(
+        "--run_name", default=None, type=str, help="Name of the run appearing in wandb"
+    )
     args = parser.parse_args()
 
     if not (args.model or args.environment or args.n):
@@ -139,8 +142,10 @@ if __name__ == "__main__":
             "algorithm": args.model,
             "environment": args.environment,
             "environment-size": args.n,
+            "ent-coef": args.ent_coef,
         },
         sync_tensorboard=True,
+        name=args.run_name,
     )
     models = {"PPO": st3.PPO}
 
