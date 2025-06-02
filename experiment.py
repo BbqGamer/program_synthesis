@@ -34,7 +34,7 @@ class BestTrajectoryCallback(BaseCallback):
                 ep_reward = sum(self.current_ep_rewards)
                 if ep_reward > self.best_reward:
                     self.best_reward = ep_reward
-                    self._save_trajectory()
+                    self._save_trajectory(info)
 
                 self.current_ep_rewards = []
                 self.current_ep_actions = []
@@ -42,16 +42,7 @@ class BestTrajectoryCallback(BaseCallback):
 
         return True
 
-    def _log_metrics(self, info):
-        metrics = {}
-        metrics["correct_items"] = info["correct_items"]
-        metrics["correct_testcases"] = info["correct_testcases"]
-        wandb.log(metrics, self.num_timesteps)
-        
-
-        
-
-    def _save_trajectory(self):
+    def _save_trajectory(self, info):
         print(f"New best trajectory found with reward: {self.best_reward}")
         actions = [action[0] for action in self.current_ep_actions]
         self.results.append(
@@ -64,6 +55,8 @@ class BestTrajectoryCallback(BaseCallback):
 
         wandb.log(
             {
+                "correct_items" = info["correct_items"],
+                "correct_testcases" = info["correct_testcases"],
                 "best_program_code": wandb.Html(
                     f"<pre><code>{actions_to_asm(actions)}</code></pre>"
                 ),
