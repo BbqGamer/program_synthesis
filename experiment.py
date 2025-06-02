@@ -30,7 +30,6 @@ class BestTrajectoryCallback(BaseCallback):
 
         for info in infos:
             if "episode" in info:
-                self._log_metrics(info)
                 ep_reward = sum(self.current_ep_rewards)
                 if ep_reward > self.best_reward:
                     self.best_reward = ep_reward
