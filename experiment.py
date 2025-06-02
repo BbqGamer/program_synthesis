@@ -137,7 +137,7 @@ if __name__ == "__main__":
 
     if not (args.model or args.environment or args.n):
         parser.error("No action requested, add -e ENVIRONMENT, -n N and -m MODEL")
-if args.learning_rate > 1 or args.learning_rate < 0:
+    if args.learning_rate > 1 or args.learning_rate < 0:
         parser.error("Learning rate should be between 0 and 1")
 
     run = wandb.init(
