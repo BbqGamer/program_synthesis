@@ -55,8 +55,8 @@ class BestTrajectoryCallback(BaseCallback):
 
         wandb.log(
             {
-                "correct_items" = info["correct_items"],
-                "correct_testcases" = info["correct_testcases"],
+                "correct_items": info["correct_items"],
+                "correct_testcases": info["correct_testcases"],
                 "best_program_code": wandb.Html(
                     f"<pre><code>{actions_to_asm(actions)}</code></pre>"
                 ),
