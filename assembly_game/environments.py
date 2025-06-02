@@ -1,4 +1,5 @@
 import itertools
+import random
 from typing import Any
 
 import gymnasium
@@ -96,6 +97,7 @@ class SortGame(gymnasium.Env):
         # rdi and rsi are the two numbers to compare
         # rax is the result of the comparison
         self.processors = [Processor(*perm) for perm in self.permutations]
+        random.shuffle(self.processors)
         self.previous_correct_items = 0
         self.all_correct = False
         self.t = 0
@@ -110,29 +112,35 @@ class SortGame(gymnasium.Env):
         for proc in self.processors:
             halted = proc.evaluate_action(action)
         state = []
+
         correct_items = 0
+        correct_testcases = 1
         for proc in self.processors:
             state.extend(proc.get_state())
             sequence = [proc.rdi, proc.rsi, proc.rdx, proc.rcx]
             for i in range(self.size):
                 if sequence[i] == self.values[i]:
-                    correct_items += 1 / self.size
-                # remove floating point errors
-                if abs(1 - correct_items) < 1e-5:
-                    correct_items = 1
+                    correct_items += 1
+            if correct_items == self.size:
+                correct_testcases += 1
 
         correctness_reward_weight = 5
         reward = correctness_reward_weight * (
             correct_items - self.previous_correct_items
         )
         self.previous_correct_items = correct_items
-        all_correct_reward = 100
-        total_env_size = len(self.processors)
-        if correct_items == total_env_size:
+        all_correct_reward = 100 * self.size
+        if correct_testcases == len(self.processors):
             reward += all_correct_reward - self.t
             self.all_correct = True
             halted = True
 
-        log = {f"example_{i}": str(proc) for i, proc in enumerate(self.processors)}
+        log = {}
+        log["correct_items"] = correct_items
+        log["correct_testcases"] = correct_testcases
+        for i, proc in enumerate(self.processors):
+            sequence = [proc.rdi, proc.rsi, proc.rdx, proc.rcx]
+            log[f"example_{i}"] = str(sequence)
+
         log["is_success"] = self.all_correct
         return np.array(state), reward, halted, False, log

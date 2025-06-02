@@ -30,6 +30,7 @@ class BestTrajectoryCallback(BaseCallback):
 
         for info in infos:
             if "episode" in info:
+                self._log_metrics(info)
                 ep_reward = sum(self.current_ep_rewards)
                 if ep_reward > self.best_reward:
                     self.best_reward = ep_reward
@@ -40,6 +41,15 @@ class BestTrajectoryCallback(BaseCallback):
                 break
 
         return True
+
+    def _log_metrics(self, info):
+        metrics = {}
+        metrics["correct_items"] = info["correct_items"]
+        metrics["correct_testcases"] = info["correct_testcases"]
+        wandb.log(metrics, self.num_timesteps)
+        
+
+        
 
     def _save_trajectory(self):
         print(f"New best trajectory found with reward: {self.best_reward}")
@@ -127,7 +137,7 @@ if __name__ == "__main__":
 
     if not (args.model or args.environment or args.n):
         parser.error("No action requested, add -e ENVIRONMENT, -n N and -m MODEL")
-    if args.learning_rate > 1 or args.learning_rate < 0:
+if args.learning_rate > 1 or args.learning_rate < 0:
         parser.error("Learning rate should be between 0 and 1")
 
     run = wandb.init(
