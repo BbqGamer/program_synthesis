@@ -114,7 +114,7 @@ class SortGame(gymnasium.Env):
         state = []
 
         correct_items = 0
-        correct_testcases = 1
+        correct_testcases = 0
         for proc in self.processors:
             state.extend(proc.get_state())
             sequence = [proc.rdi, proc.rsi, proc.rdx, proc.rcx]
