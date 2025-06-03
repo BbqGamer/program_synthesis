@@ -106,7 +106,6 @@ class SortGame(gymnasium.Env):
             state.extend(proc.get_state())
 
         return np.array(state), {}
-
     def step(self, action: Any) -> tuple[Any, float, bool, bool, dict[str, Any]]:
         self.t += 1
         for proc in self.processors:
@@ -115,27 +114,30 @@ class SortGame(gymnasium.Env):
 
         correct_items = 0
         correct_testcases = 0
+        log = {}
         for proc in self.processors:
             state.extend(proc.get_state())
             sequence = [proc.rdi, proc.rsi, proc.rdx, proc.rcx]
+            if not set(self.values).issubset(set(sequence)):
+                reward = -1
+                halted = True
             for i in range(self.size):
                 if sequence[i] == self.values[i]:
                     correct_items += 1
             if correct_items == self.size:
                 correct_testcases += 1
-
-        correctness_reward_weight = 5
-        reward = correctness_reward_weight * (
-            correct_items - self.previous_correct_items
-        )
-        self.previous_correct_items = correct_items
-        all_correct_reward = 100 * self.size
-        if correct_testcases == len(self.processors):
-            reward += all_correct_reward - self.t
-            self.all_correct = True
-            halted = True
-
-        log = {}
+        if not halted:  ## Flag for checking if any case is impossible
+            correctness_reward_weight = 5
+            reward = correctness_reward_weight * (
+                correct_items - self.previous_correct_items
+            )
+            self.previous_correct_items = correct_items
+            all_correct_reward = 100 * self.size
+            if correct_testcases == len(self.processors):
+                reward += all_correct_reward - self.t
+                self.all_correct = True
+                halted = True
+            
         log["correct_items"] = correct_items
         log["correct_testcases"] = correct_testcases
         for i, proc in enumerate(self.processors):
